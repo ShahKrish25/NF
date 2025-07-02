@@ -21,6 +21,7 @@ function Number({ mv, number, height }) {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    transition: "transform 0s ease-out"
   };
 
   return <motion.span style={{ ...style, y }}>{number}</motion.span>;
