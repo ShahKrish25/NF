@@ -14,6 +14,7 @@
 html {
   scroll-behavior: smooth;
   height: -webkit-fill-available;
+  background: #18181b !important;
   
 }
 
@@ -22,7 +23,7 @@ body {
   overscroll-behavior-y: none;
   user-select: none;
   box-sizing: border-box;
-  background-color: #000000;
+  background: #18181b !important;
 }
 
 @supports (-webkit-touch-callout: none) {

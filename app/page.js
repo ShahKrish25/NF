@@ -147,6 +147,7 @@ const initialData = {
   maxStreak: 0,
   streaks: [],
   lastStart: null,
+  lastIncrementDate: null,
 };
 
 function getToday() {
@@ -198,14 +199,24 @@ function StreakTracker({ localKey, label }) {
   const [achievements, setAchievements] = useState([]);
   const [isMobile, setIsMobile] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isIncrementDisabled, setIsIncrementDisabled] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem(localKey);
       if (saved) {
-        setData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setData(parsed);
+
+        // Check if last increment was today
+        if (parsed.lastIncrementDate === getToday()) {
+          setIsIncrementDisabled(true);
+        } else {
+          setIsIncrementDisabled(false);
+        }
       } else {
         setData({ ...initialData, lastStart: getToday() });
+        setIsIncrementDisabled(false);
       }
 
       const savedBadges = JSON.parse(
@@ -219,6 +230,10 @@ function StreakTracker({ localKey, label }) {
   useEffect(() => {
     if (hasHydrated) {
       localStorage.setItem(localKey, JSON.stringify(data));
+      // If the day has changed, re-enable the button
+      if (data.lastIncrementDate !== getToday()) {
+        setIsIncrementDisabled(false);
+      }
     }
   }, [data, hasHydrated, localKey]);
 
@@ -230,10 +245,13 @@ function StreakTracker({ localKey, label }) {
   }, []);
 
   const handleIncrement = () => {
+    if (isIncrementDisabled) return;
     setData((prev) => ({
       ...prev,
       currentStreak: prev.currentStreak + 1,
+      lastIncrementDate: getToday(),
     }));
+    setIsIncrementDisabled(true);
   };
 
   const handleReset = () => {
@@ -335,7 +353,8 @@ function StreakTracker({ localKey, label }) {
               </button>
               <button
                 onClick={handleIncrement}
-                className="px-4 py-2 glass-effect rounded text-[var(--text-secondary)] hover:text-white transition-all"
+                disabled={isIncrementDisabled}
+                className={`px-4 py-2 glass-effect rounded text-[var(--text-secondary)] hover:text-white transition-all ${isIncrementDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <ShinyText text="+1 DAY" />
               </button>
